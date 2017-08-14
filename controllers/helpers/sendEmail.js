@@ -19,7 +19,7 @@ module.exports = function (mailOptions, callback) {
             console.log(error);
             return callback(error);
         }
-        console.log('Message %s sent: %s', info.messageId, info.response);
+        // console.log('Message %s sent: %s', info.messageId, info.response);
         return callback(null, info);
     });
 };

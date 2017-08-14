@@ -48,7 +48,7 @@ module.exports = (app) => {
 
             let mailOptions = {
                 from: `"formulate" <formulatefyi@gmail.com>`, // Sender address
-                to: `${req.body.email}`, // list of receivers
+                to: `"formulatefyi@gmail.com"`, //`${req.body.email}`, // list of receivers
                 subject: `Verifiy your formulate account!`, // Subject line
                 text: `Email address: ${req.body.email}, & URL: ${base}/auth/verify/${_id}`, // plain text body
                 html: `Email address: ${req.body.email}<br>

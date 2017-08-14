@@ -11,7 +11,7 @@ let server = require('../server');
 let should = chai.should();
 
 // User data that should succeed in signup and signin
-const success = {
+const shouldSucceed = {
     email: 'success@email.com',
     password: 'sucessPass'
 }
@@ -27,26 +27,31 @@ describe('Logout', () => {
 
     describe(`/auth/logout GET`, () => {
         it(`should log user out, and prevent access to forms`, (done) => {
+            // Sign up a new user
             chai.request(server)
                 .post('/auth/signup')
-                .send(success)
-                .end((err, res) => {
+                .send(shouldSucceed)
+                .end((err, res1) => {
                     // Login with that new user info
-                    chai.request(server)
+                    const agent = chai.request.agent(server);
+                    return agent
                         .post('/auth/login')
-                        .send(success)
-                        .end((err, res) => {
-                            chai.request(server)
+                        .send(shouldSucceed)
+                        .end((err, res2) => {
+                            res2.should.have.cookie('session')
+                            return agent
                                 .get('/api/user')
-                                .end((err, res) => {
-                                    res.should.have.status(200);
-                                    chai.request(server)
-                                        .get('/api/logout')
-                                        .end((err, res) => {
-                                            chai.request(server)
+                                .end((err, res3) => {
+                                    res3.should.have.status(200);
+                                    res3.body.success.should.equal(true);
+                                    return agent
+                                        .get('/auth/logout')
+                                        .end((err, res4) => {
+                                            return agent
                                                 .get('/api/user')
-                                                .end((err, res) => {
-                                                    res.should.have.status(200);
+                                                .end((err, res5) => {
+                                                    res5.should.have.status(400);
+                                                    done()
                                                 });
                                         });
                                 });

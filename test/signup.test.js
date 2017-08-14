@@ -11,7 +11,7 @@ let server = require('../server');
 let should = chai.should();
 
 // User data that should succeed in signup and signin
-const success = {
+const shouldSucceed = {
     email: 'success@email.com',
     password: 'sucessPass'
 }
@@ -19,7 +19,7 @@ const success = {
 chai.use(chaiHttp);
 
 describe('Sign up', () => {
-    beforeEach((done) => { //Before each test we empty the database
+    before((done) => { //Before all tests we empty the database
         User.remove({}, (err) => {
             done();
         });
@@ -50,42 +50,6 @@ describe('Sign up', () => {
                 });
         });
 
-        it(`should send fail response when email is a duplicate`, (done) => {
-            const email = 'test@testing.me'
-            const testDupUser = new User({ 
-                email: email,
-                password: 'password'
-            })
-
-            testDupUser.save((err) => {
-                if (err) {
-                    ('message').should.equal('testDupUser did not save');
-                }
-                
-                chai.request(server)
-                    .post('/auth/signup')
-                    .send({ email: email, password: 'password' })
-                    .end((err, res) => {
-                        res.should.have.status(409);
-                        res.body.should.be.a('object');
-                        res.body.success.should.equal(false);
-                        done();
-                    });
-            });
-        });
-
-        it(`should send success response if email and password are valid`, (done) => {
-            chai.request(server)
-                .post('/auth/signup')
-                .send(success)
-                .end((err, res) => {
-                    res.should.have.status(200);
-                    res.body.should.be.a('object');
-                    res.body.success.should.equal(true);
-                    done()
-                });
-        });
-
         it(`should add a new user if email and password are valid`, (done) => {
             User.find({}, (err, response) => {
                 if (err) {
@@ -96,14 +60,27 @@ describe('Sign up', () => {
 
                 chai.request(server)
                     .post('/auth/signup')
-                    .send({ email: 'hello@hellooo.com', password: 'password1' })
+                    .send(shouldSucceed) 
                     .end((err, res) => {
+                        res.should.have.status(200);
                         User.find({}, (err, response) => {
                             priorLength.should.equal(response.length - 1);
                             done();
                         });
                     });
             });
+        });
+
+        it(`should send fail response when email is a duplicate`, (done) => {
+            chai.request(server)
+                .post('/auth/signup')
+                .send(shouldSucceed) // Will not succeed because it is duplicate email
+                .end((err, res) => {
+                    res.should.have.status(409);
+                    res.body.should.be.a('object');
+                    res.body.success.should.equal(false);
+                    done();
+                });
         });
     });
 });

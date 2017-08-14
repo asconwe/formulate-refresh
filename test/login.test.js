@@ -33,6 +33,7 @@ describe('Login', () => {
                 .send({ email: 'incorrect@email.com', password: 'password' })
                 .end((err, res) => {
                     res.should.have.status(400);
+                    res.should.not.have.cookie('session');
                     res.body.should.be.a('object');
                     res.body.success.should.equal(false);
                     done();
@@ -45,6 +46,7 @@ describe('Login', () => {
                 .send({ email: success.email, password: 'blahblahblah' })
                 .end((err, res) => {
                     res.should.have.status(400);
+                    res.should.not.have.cookie('session');
                     res.body.should.be.a('object');
                     res.body.success.should.equal(false);
                     done();
@@ -58,13 +60,15 @@ describe('Login', () => {
                 .send(success)
                 .end((err, res) => {
                     // Login with that new user info
-                    chai.request(server)
+                    const agent = chai.request(server);
+                    agent
                         .post('/auth/login')
                         .send(success)
-                        .end((err, res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.a('object');
-                            res.body.success.should.equal(true);
+                        .end((err, res2) => {
+                            res2.should.have.status(200);
+                            res2.should.have.cookie('session');
+                            res2.body.should.be.a('object');
+                            res2.body.success.should.equal(true);
                             done();
                         });
                 });
