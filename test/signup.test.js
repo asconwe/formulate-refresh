@@ -50,7 +50,7 @@ describe('Sign up', () => {
                 });
         });
 
-        it(`should add a new user if email and password are valid`, (done) => {
+        it(`should add a new user and send verification email if email and password are valid`, (done) => {
             User.find({}, (err, response) => {
                 if (err) {
                     (`Couldn't find users`).should.equal('test failed by test error')
@@ -63,6 +63,7 @@ describe('Sign up', () => {
                     .send(shouldSucceed) 
                     .end((err, res) => {
                         res.should.have.status(200);
+                        res.body.verificationAddress.should.equal(shouldSucceed.email);
                         User.find({}, (err, response) => {
                             priorLength.should.equal(response.length - 1);
                             done();
