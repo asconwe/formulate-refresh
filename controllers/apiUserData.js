@@ -6,6 +6,7 @@ module.exports = (app) => {
                 message: 'Log in to access this content'
             })
         }
-        return res.status(200).json({ success: true, user: req.user })
+        const { verified, forms, email } = req.user;
+        return res.status(200).json({ success: true, verified, forms, email })
     })
 }

@@ -8,7 +8,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const morgan = require('morgan');
 const session = require('cookie-session');
-const requireHTTPS = require('./requireHTTPS');
+const requireHTTPS = require('./controllers/requireHTTPS');
 
 // Authentication Controllers
 const authSignup = require('./controllers/authSignup');
@@ -37,9 +37,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 app.use(bodyParser.json({ type: "application/vnd.api+json" }));
-app.use(cookieParser('striped-shirt'));
+app.use(cookieParser(process.env.SECRET));
 app.use(session({
-    secret: 'striped-shirt',
+    secret: process.env.SECRET,
     resave: false,
     saveUninitialized: true
 }));
