@@ -1,8 +1,14 @@
 const mongoose = require('mongoose');
 
+const elementSchema = new mongoose.Schema({
+    type: String,
+    Options: Object,
+    children: [elementSchema]
+})
+
 const formSchema = new mongoose.Schema({
     formTitle: String,
-    elements: Array,
+    topLevelElements: [elementSchema],
     published: Boolean
 });
 
