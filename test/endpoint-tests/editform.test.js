@@ -92,7 +92,7 @@ describe('Save a new form', () => {
                 })
         });
 
-        it(`should fial if the form_id does not match or is missing`, () => {
+        it(`should fail if the form_id does not match or is missing`, () => {
 
         })
 
@@ -105,8 +105,9 @@ describe('Save a new form', () => {
                 });
         });
     });
+
     describe('Post api/edit/form/:form_id', () => {
-        it(`It should save only valid new form data to the server and return form _id`, () => {
+        it(`It should save only valid form data to the server and return form _id`, () => {
             const agent = chai.request.agent(server);
             return agent
                 .post('/auth/login')

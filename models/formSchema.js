@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const elementSchema = new mongoose.Schema({
     type: String,
     Options: Object,
-    children: [elementSchema]
+    children: [this]
 })
 
 const formSchema = new mongoose.Schema({
