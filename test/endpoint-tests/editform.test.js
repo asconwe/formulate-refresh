@@ -49,7 +49,7 @@ describe('Save a new form', () => {
 
     let form_id;
 
-    beforeEach((done) => { // Before each tests we empty the database and save a new verified user with a form
+    before((done) => { // Before all tests we empty the database and save a new verified user with a form
         User.remove({}, (err) => {
             return chai.request(server)
                 .post('/auth/signup')
@@ -83,7 +83,7 @@ describe('Save a new form', () => {
                 .send(shouldSucceed)
                 .then(() => {
                     return agent
-                        .get(`/api/edi/form/${form_id}`);
+                        .get(`/api/edit/form/${form_id}`);
                 })
                 .then(res => {
                     res.should.have.status(200);
@@ -93,13 +93,28 @@ describe('Save a new form', () => {
         });
 
         it(`should fail if the form_id does not match or is missing`, () => {
-
+            const agent = chai.request.agent(server);
+            return agent
+                .post('/auth/login/')
+                .send(shouldSucceed)
+                .then(() => {
+                    return agent
+                        .get(`/api/edit/form/`);
+                })
+                .catch(err => {
+                    err.should.have.status(500);
+                    return agent
+                        .get(`/api/edit/form/invalidid`)
+                })
+                .catch(err => {
+                    err.should.have.status(500);
+                })
         })
 
         it(`should fail if not logged in`, () => {
             chai.request(server)
                 .get(`/api/edit/form/${form_id}`)
-                .then(() => res.should.be.undefined)
+                .then(res => res.should.be.undefined)
                 .catch(err => {
                     return err.should.have.status(400);
                 });
@@ -107,23 +122,66 @@ describe('Save a new form', () => {
     });
 
     describe('Post api/edit/form/:form_id', () => {
-        it(`It should save only valid form data to the server and return form _id`, () => {
+        it(`It should save valid form data to the server and return form _id`, () => {
             const agent = chai.request.agent(server);
             return agent
                 .post('/auth/login')
                 .send(shouldSucceed)
                 .then(() => {
-
+                    return agent
+                        .post(`/api/edit/form/${form_id}`)
+                        .send(Object.assign({}, validForm, { title: 'Edited' }))
                 })
-        });
-
-        it(`should fail if not logged in`, () => {
-            chai.request(server)
-                .post(`/api/edit/form/${form_id}`)
-                .then(() => res.should.be.undefined)
-                .catch(err => {
-                    return err.should.have.status(400);
+                .then(res => {
+                    res.should.have.status(200);
+                    res.body.success.should.be.true;
+                    return User.find({}).exec()
+                })
+                .then(users => {
+                    users[0].forms[0].should.deep.equal(Object.assign({}, validForm, { title: 'Edited' }));
                 });
         });
+
+        it(`should fail if form data is invalid`, () => {
+            const agent = chai.request.agent(server);
+            return agent
+                .post('/auth/login')
+                .send(shouldSucceed)
+                .then(() => {
+                    return agent
+                        .post(`/api/edit/form/${form_id}`)
+                        .send({ invalidKey: 'something' });
+                })
+                .then(res => res.should.be.undefined)
+                .catch(err => {
+                    err.should.have.status(500);
+                    err.req.body.should.have.property('invalidKey');
+                })
+
+        })
+    })
+
+    it(`should fail if form_id is not valid`, () => {
+        const agent = chai.request.agent(server);
+        return agent
+            .post('/auth/login/')
+            .send(shouldSucceed)
+            .then(() => {
+                return agent
+                    .post(`/api/edit/form/asdf`)
+                    .send(validForm);
+            })
+            .catch(err => err.should.have.status(500));
+    })
+
+    it(`should fail if not logged in`, () => {
+        chai.request(server)
+            .post(`/api/edit/form/${form_id}`)
+            .send(validForm)
+            .then(() => res.should.be.undefined)
+            .catch(err => {
+                return err.should.have.status(400);
+            });
     });
+
 });
