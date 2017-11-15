@@ -19,6 +19,8 @@ const authReSend = require('./controllers/authReSend');
 
 // Data Controllers
 const apiUserData = require('./controllers/apiUserData');
+const apiNewForm = require('./controllers/apiNewForm');
+
 // Express Port/App Declaration
 const PORT = process.env.PORT || 8080;
 const app = express();
@@ -31,12 +33,12 @@ if(process.env.NODE_ENV !== 'test') {
 
 // app.use(requireHTTPS);
 app.use(express.static(__dirname + "/public"));
-app.use('/.well-known/acme-challenge/', express.static(__dirname + "/cert"));
-app.use('/minicss', express.static(__dirname + '/node_modules/mini.css/dist'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.text());
 app.use(bodyParser.json({ type: "application/vnd.api+json" }));
+
+// Passport 
 app.use(cookieParser(process.env.SECRET));
 app.use(session({
     secret: process.env.SECRET,
@@ -56,7 +58,7 @@ const db = mongoose.connection;
 
 //=== Show any mongoose errors
 db.on("error", function (error) {
-    console.log("Mongoose Error: ", error);
+    console.error("Mongoose Error: ", error);
 });
 
 //==== Once logged in to the db through mongoose, log a success message
@@ -65,13 +67,15 @@ db.once("open", function () {
 });
 
 //==== Call controllers
+// Auth
 authLogin(app);
 authSignup(app);
 authLogout(app);
 authVerification(app);
 authReSend(app);
+// Api
 apiUserData(app);
-
+apiNewForm(app);
 
 // Connection to PORT
 app.listen(PORT, function () {

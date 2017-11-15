@@ -45,7 +45,7 @@ const invalidForm = {
     invalidProp: 'it dont work!'
 }
 
-describe('Save a new form', () => {
+describe('Edit a form', () => {
 
     let form_id;
 
@@ -59,7 +59,7 @@ describe('Save a new form', () => {
                 })
                 .then(user => {
                     const verifiedUser = user[0];
-                    verifiedUser.verified = true;
+                    verifiedUser.verified = true; // moch user verification
                     verifiedUser.forms.push(validForm)
                     form_id = verifiedUser.forms[verifiedUser.forms.length]._id.toString();
                     return verifiedUser.save()

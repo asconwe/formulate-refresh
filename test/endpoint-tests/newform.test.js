@@ -45,7 +45,7 @@ const invalidForm = {
     invalidProp: 'it dont work!'
 }
 
-describe('Save a new form', () => {
+describe('Create a new form', () => {
     beforeEach((done) => { //Before each tests we empty the database
         User.remove({}, (err) => {
             return chai.request(server)
@@ -73,30 +73,41 @@ describe('Save a new form', () => {
     describe('POST api/new/form', () => {
         it(`It should save only valid new form data to the server and return form _id`, () => {
             const agent = chai.request.agent(server);
+            let thenEntered = false;
+            let thenNotEntered = true;
             return agent
                 .post('/auth/login')
                 .send(shouldSucceed)
                 .then(() => {
                     return agent
                         .post('/api/new/form')
-                        .send(validForm)
+                        .send({ form: validForm }) // test with a valid form
                 })
                 .then(res => {
+                    thenEntered = true; // Make sure these tests are passed (thenEntered is tested against later)
                     res.should.have.status(200);
                     res.body.success.should.be.true;
                     res.body._id.should.be.a('string');
                     return agent
                         .post('/api/new/form')
-                        .send(invalidForm)
+                        .send({ form: invalidForm }) // test with an invalid form
                 })
                 .then(res => {
-                    res.should.have.status(500);
-                    res.body.success.should.be.false;
-                    return User.find({}).exec()
+                    thenNotEntered = false
+                    throw { message: 'this callback should not be entered'}
                 })
-                .then(user => {
-                    user[0].forms.length.should.equal(1);
-                    user[0].forms[0].title.should.equal(validForm.title);
+                .catch(err => {
+                    thenNotEntered.should.be.true;
+                    thenEntered.should.be.true;
+                    console.log(err);
+                    err.response.should.have.status(500);
+                    err.response.body.success.should.be.false;
+                    
+                    return User.find({}, (err, user) => {
+                        user[0].forms.length.should.equal(1);
+                        user[0].forms[0].title.should.equal(validForm.title);
+                    })
+                
                 })
         });
         

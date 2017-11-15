@@ -89,7 +89,7 @@ describe('Get user data', () => {
                         .get('/api/user')
                 })
                 .then(res => {
-                    res.should.have.status(200);
+                    res.should.have.status(209);
                     res.body.success.should.be.true;
                     res.body.forms.should.be.an('array');
                     return res.body.should.have.own.property('_id');
