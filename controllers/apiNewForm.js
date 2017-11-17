@@ -1,11 +1,11 @@
 const User = require('../models/User')
 
 
-elementIsValid = ({type, options}) => {
+elementIsValid = ({ type, children, options }) => {
     if (options.width) {
         if (type === 'box') {
-            if (options.children.length > 0) {
-                const invalidElements = options.children.filter(element => !elementIsValid(element))
+            if (children.length > 0) {
+                const invalidElements = children.filter(element => !elementIsValid(element))
                 return invalidElements.length === 0;
             }
             return false
@@ -17,7 +17,7 @@ elementIsValid = ({type, options}) => {
 
 const elementsAreValid = (form) => {
     const invalidElements = form.topLevelElements.filter(element => !elementIsValid(element))
-    console.log('here', invalidElements.length === 0);
+    console.error('here', invalidElements.length === 0);
     return invalidElements.length === 0;
 } 
 
@@ -41,6 +41,7 @@ module.exports = (app) => {
                     req.newForm_id = currentUser.forms[currentUser.forms.length - 1]._id
                     return currentUser.save()
                 }
+                throw { message: 'invalid form', status: 400 }
             })
             .then(() => {
                 return res.status(200).json({
@@ -49,9 +50,9 @@ module.exports = (app) => {
                 })
             })
             .catch((err) => {
-                return res.status(500).json({
+                return res.status(err.status || 500).json({
                     success: false,
-                    message: 'could not save form',
+                    message: err.message,
                 })
             });
     })

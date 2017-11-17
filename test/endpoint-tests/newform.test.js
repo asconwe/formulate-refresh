@@ -22,20 +22,21 @@ const shouldSucceed = {
 
 const validForm = {
     title: 'My form',
+    published: false,
     topLevelElements: [
         {
             type: 'box',
             options: {
                 width: 12,
-                children: [
-                    {
-                        type: 'text-box',
-                        options: {
-                            width: 12
-                        }
+            },
+            children: [
+                {
+                    type: 'text-box',
+                    options: {
+                        width: 12
                     }
-                ]
-            }
+                }
+            ]
         }
     ]
 }
@@ -88,26 +89,31 @@ describe('Create a new form', () => {
                     res.should.have.status(200);
                     res.body.success.should.be.true;
                     res.body._id.should.be.a('string');
+                    console.log('first request')
                     return agent
                         .post('/api/new/form')
                         .send({ form: invalidForm }) // test with an invalid form
                 })
                 .then(res => {
-                    thenNotEntered = false
+                    thenNotEntered = false;
+                    console.log('second request')
                     throw { message: 'this callback should not be entered'}
                 })
                 .catch(err => {
-                    thenNotEntered.should.be.true;
                     thenEntered.should.be.true;
-                    console.log(err);
-                    err.response.should.have.status(500);
-                    err.response.body.success.should.be.false;
+                    thenNotEntered.should.be.true;
+                    err.response.should.have.status(400);
+                    err.response.res.body.success.should.be.false;
                     
                     return User.find({}, (err, user) => {
                         user[0].forms.length.should.equal(1);
                         user[0].forms[0].title.should.equal(validForm.title);
+                        console.log(user[0].forms[0].topLevelElements);
+                        user[0].forms[0]
+                            .topLevelElements[0]
+                            .children[0].type.should.
+                            equal(validForm.topLevelElements[0].children[0].type);
                     })
-                
                 })
         });
         
