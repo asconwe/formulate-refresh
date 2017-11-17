@@ -22,7 +22,7 @@ chai.use(chaiHttp);
 describe('Login', () => {
     beforeEach((done) => { //Before each test we empty the database
         User.remove({}, (err) => {
-            if (err) console.log(err);
+            if (err) console.trace(err.message);
             chai.request(server)
                 .post('/auth/signup')
                 .send(shouldSucceed)
@@ -30,7 +30,7 @@ describe('Login', () => {
                     done();
                 })
                 .catch(err => {
-                    console.log('error in setup');
+                    console.trace('error in login setup');
                     done();
                 });    
         })

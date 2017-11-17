@@ -20,16 +20,27 @@ const shouldSucceed = {
 chai.use(chaiHttp);
 
 describe('Logout', () => {
-    before((done) => { //Before all tests we empty the database and sign up one new user
+    before((done) => { //Before all tests we empty the database and sign up/verify one new user
         User.remove({}, (err) => {
-            if (err) console.log(err);
+            if (err) console.trace(err.message);
             return chai.request(server)
                 .post('/auth/signup')
                 .send(shouldSucceed)
                 .then(() => {
+                    return User.find({})
+                })
+                .then(user => {
+                    const verifiedUser = user[0];
+                    verifiedUser.verified = true;
+                    return verifiedUser.save();
+                })
+                .then(() => {
                     done();
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.trace(err.message)
+                    done();
+                });
         });
     });
 

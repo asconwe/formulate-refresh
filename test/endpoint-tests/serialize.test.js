@@ -35,7 +35,10 @@ describe('Serialization', () => {
                     verifiedUser.save();
                     done();
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.trace('error in serialize setup', err);
+                    done();
+                });
         });
     });
 
@@ -57,7 +60,10 @@ describe('Serialization', () => {
                     res.body.verified.should.be.true;
                     return res.body.should.have.property('forms');
                 })
-                .catch(err => err.should.be.undefined);
+                .catch(err => {
+                    console.trace(err)
+                    err.should.be.undefined
+                });
         });
 
         it(`should send a fail response if user is not signed in`, () => {

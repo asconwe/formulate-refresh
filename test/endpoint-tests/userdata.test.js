@@ -59,11 +59,10 @@ describe('Get user data', () => {
                 })
                 .then(res => {
                     res.should.have.status(209);
-                    res.body.success.should.not.be.true;
+                    res.body.success.should.be.true;
+                    res.body.verified.should.be.false;
                     res.body.should.not.have.own.property('forms');
-                    res.body.should.have.own.property('_id');
-                    res.body.should.email.should.equal(shouldSucceed.email);
-                    return res.body.message.should.equal(`Check your ${res.body.email} inbox for our verification message`)
+                    return res.body.message.should.equal(`Check your ${shouldSucceed.email} inbox for our verification email.`)
                 })
         });
 
