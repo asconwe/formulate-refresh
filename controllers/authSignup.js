@@ -62,12 +62,14 @@ module.exports = (app) => {
                 if (error) {
                     return res.status(500).json({
                         success: false,
-                        message: 'Could not send verification email.'
+                        message: 'Could not send verification email.',
+                        verificationSent: false,
                     });
                 }
                 return res.status(200).json({
                     success: true,
-                    message: 'You have successfully signed up! Verify your email.'
+                    message: 'You have successfully signed up! Verify your email.',
+                    verificationSent: true,
                 });
             });
         })(req, res, next);

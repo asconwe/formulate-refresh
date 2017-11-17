@@ -8,7 +8,7 @@ module.exports = function (mailOptions, callback) {
         port: 465,
         secure: true, // secure:true for port 465, secure:false for port 587
         auth: {
-            user: 'formulatefyi@gmail.com', //process.env.EMAIL_ADDRESS,
+            user: 'formulate.fyi@gmail.com', //process.env.EMAIL_ADDRESS,
             pass: 'anibel4ever' //process.env.EMAIL_PASSWORD
         }
     });
