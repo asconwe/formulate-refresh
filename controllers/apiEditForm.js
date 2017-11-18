@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
+const User = require('../models/User');
 
 const { formIsValid } = require('./helpers/validateForm');
 
 const findFormAndIndex = (req) => {
-    console.log(req.params.form_id);
     try {
         const _id = mongoose.Types.ObjectId(req.params.form_id);
         return { 
@@ -82,15 +82,16 @@ module.exports = (app) => {
         }
         
         const updatedForm = Object.assign({}, req.body.form, { _id: _id })
-        console.log(req.body)
-        console.log(updatedForm);
-
         if (formIsValid(updatedForm)) {
-            req.user.forms[formIndex] = updatedForm;
-            return req.user.save()
+            User.findOne(req.user._id)
+                .then((currentUser) => {
+                    currentUser.forms[0] = updatedForm;
+                    return currentUser.save()
+                })
                 .then((user) => {
                     return res.status(200).json({
                         success: true,
+                        _id: req.user._id,
                     })
                 })
                 .catch(err => {
@@ -100,11 +101,12 @@ module.exports = (app) => {
                         err: err.message,
                     })
                 })
+        } else {
+            return res.status(400).json({
+                success: false,
+                cause: 'invalid-form-data',
+                message: "Cannot save due to invalid form data",
+            })
         }
-        return res.status(400).json({
-            success: false,
-            cause: 'invalid-form-data',
-            message: "Cannot save due to invalid form data",
-        })
     });
 }
