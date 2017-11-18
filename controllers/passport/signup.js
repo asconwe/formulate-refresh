@@ -5,8 +5,11 @@ const User = require('../../models/User');
 
 module.exports = new LocalStrategy({ usernameField: 'email' }, (email, password, done) => {
     const newUser = new User({ email: email.trim(), password: password.trim(), verified: false });
-    newUser.save((err) => { 
-        if (err) return done(err);
-        return done(null, newUser);
-    });
+    return newUser.save()
+        .then((user) => {
+            return done(null, user);
+        })
+        .catch(err => {
+            if (err) return done(err);
+        });
 });    
