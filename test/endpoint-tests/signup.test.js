@@ -62,7 +62,6 @@ describe('Sign up', () => {
                     return User.find({}).exec();
                 })
                 .then(users => {
-                    console.log(users);
                     return users.length.should.equal(1);
                 })
                 

@@ -14,7 +14,6 @@ const elementIsValid = ({ type, children, options }) => {
 
 const elementsAreValid = (form) => {
     const invalidElements = form.topLevelElements.filter(element => !elementIsValid(element))
-    console.error('here', invalidElements.length === 0);
     return invalidElements.length === 0;
 } 
 
