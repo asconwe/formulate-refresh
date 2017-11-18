@@ -101,7 +101,6 @@ describe('Edit a form', () => {
                 .then(({user, res}) => {
                     const form = user.forms[0];
                     form.title.should.equal(validForm.title);
-                    console.log(res.body.form);
                     res.body.form.topLevelElements[0].children[0].type.should.equal(form.topLevelElements[0].children[0].type)
                     return res.body.form.title.should.equal(validForm.title);
                 })
@@ -124,9 +123,11 @@ describe('Edit a form', () => {
                     return agent
                         .get(`/api/edit/form/invalidid`)
                 })
+                .then(res => {
+                    console.log('this should not be entered', res);
+                })
                 .catch(err => {
-                    console.log(err);
-                    err.res.should.have.status(400);
+                    err.should.have.status(400);
                 })
         })
 
@@ -159,7 +160,9 @@ describe('Edit a form', () => {
                 .then(users => {
                     users[0].forms[0].should.equal(Object.assign({}, validForm, { title: 'Edited' }));
                 })
-                .catch(err => console.trace(err))
+                .catch(err => {
+                    console.log('here')
+                })
         });
 
         it(`should fail if form data is invalid`, () => {
@@ -174,8 +177,9 @@ describe('Edit a form', () => {
                 })
                 .then(res => res.should.be.undefined)
                 .catch(err => {
-                    err.should.have.status(500);
-                    err.req.body.should.have.property('invalidKey');
+                    console.log('ERR HERE!!!!', err.response.res.body)
+                    err.should.have.status(400);
+                    err.response.res.body.should.have.property('cause');
                 })
 
         })
@@ -191,7 +195,7 @@ describe('Edit a form', () => {
                     .post(`/api/edit/form/asdf`)
                     .send(validForm);
             })
-            .catch(err => err.should.have.status(500));
+            .catch(err => err.should.have.status(400));
     })
 
     it(`should fail if not logged in`, () => {

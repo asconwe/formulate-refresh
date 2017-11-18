@@ -19,7 +19,11 @@ const elementsAreValid = (form) => {
 } 
 
 const formIsValid = (form) => {
-    return form.title.length > 0 && elementsAreValid(form);
+    try {
+        return form.title.length > 0 && elementsAreValid(form);
+    } catch (error) {
+        return false
+    }
 }
 
 module.exports = { formIsValid, elementsAreValid, elementIsValid };
