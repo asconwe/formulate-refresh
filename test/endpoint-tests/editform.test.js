@@ -53,7 +53,6 @@ describe('Edit a form', () => {
     before((done) => { 
         User.remove({}, (err) => {
             if (err) console.log(err);
-            console.log('before auth');
             return chai.request(server)
                 .post('/auth/signup')
                 .send(shouldSucceed)
