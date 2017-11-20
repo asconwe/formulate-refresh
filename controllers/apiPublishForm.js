@@ -19,62 +19,123 @@ const findFormAndIndex = (req) => {
     }
 }
 
-module.exports = (app) => {
-    app.post('/api/publish/form/:form_id', (req, res) => {
-        if (!req.user) {
-            return res.status(400).json({
-                success: false,
-                cause: 'app-level-authentication',
-                message: 'Log in to access this content',
-            })
-        }
-        
-        const { formIndex, userForm, formError } = findFormAndIndex(req)
-
-        if (formError) {
-            return res.status(400).json({
-                success: false,
-                message: "The form's ID is invalid",
-                cause: 'invalid-_id',
-            })
-        }
-        
-        if (!userForm) {
-            return res.status(400).json({
-                success: false,
-                cause: 'form-level-authentication',
-                message: "it seems you don't own this form",
-            })
-        }
-        
-        if (userForm.published) {
-            return res.status(400).json({
-                success: false,
-                cause: 'form-is-published',
-                message: 'This form is already published.'
-            })
-        }
-        
-        req.formIndex = formIndex;
-        userForm.published = true;
-        return User.findOne(req.user._id)
-            .then(user => {
-                user.forms.set(req.formIndex, userForm);
-                return user.save()
-            })
-            .then(user => {
-                return res.status(200).json({
-                    success: true,
-                    form: userForm
-                })
-            })
-            .catch(err => {
+module.exports = {
+    publish: (app) => {
+        app.post('/api/publish/form/:form_id', (req, res) => {
+            if (!req.user) {
                 return res.status(400).json({
                     success: false,
-                    message: 'Could not update the form',
-                    cause: 'save-failed'
+                    cause: 'app-level-authentication',
+                    message: 'Log in to access this content',
                 })
-            })
-           
-    })
+            }
+            
+            const { formIndex, userForm, formError } = findFormAndIndex(req)
+    
+            if (formError) {
+                return res.status(400).json({
+                    success: false,
+                    message: "The form's ID is invalid",
+                    cause: 'invalid-_id',
+                })
+            }
+            
+            if (!userForm) {
+                return res.status(400).json({
+                    success: false,
+                    cause: 'form-level-authentication',
+                    message: "it seems you don't own this form",
+                })
+            }
+            
+            if (userForm.published) {
+                return res.status(400).json({
+                    success: false,
+                    cause: 'form-is-published',
+                    message: 'This form is already published.'
+                })
+            }
+            
+            req.formIndex = formIndex;
+            userForm.published = true;
+            return User.findOne(req.user._id)
+                .then(user => {
+                    user.forms.set(req.formIndex, userForm);
+                    return user.save()
+                })
+                .then(user => {
+                    return res.status(200).json({
+                        success: true,
+                        form: userForm
+                    })
+                })
+                .catch(err => {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Could not update the form',
+                        cause: 'save-failed'
+                    })
+                })
+               
+        })
+    },
+    unpublish: (app) => {
+        app.post('/api/unpublish/form/:form_id', (req, res) => {
+            if (!req.user) {
+                return res.status(400).json({
+                    success: false,
+                    cause: 'app-level-authentication',
+                    message: 'Log in to access this content',
+                })
+            }
+            
+            const { formIndex, userForm, formError } = findFormAndIndex(req)
+    
+            if (formError) {
+                return res.status(400).json({
+                    success: false,
+                    message: "The form's ID is invalid",
+                    cause: 'invalid-_id',
+                })
+            }
+            
+            if (!userForm) {
+                return res.status(400).json({
+                    success: false,
+                    cause: 'form-level-authentication',
+                    message: "it seems you don't own this form",
+                })
+            }
+            
+            if (!userForm.published) {
+                return res.status(400).json({
+                    success: false,
+                    cause: 'form-is-not-published',
+                    message: 'This form is not currently published.'
+                })
+            }
+            
+            req.formIndex = formIndex;
+            userForm.published = false;
+            return User.findOne(req.user._id)
+                .then(user => {
+                    user.forms.set(req.formIndex, userForm);
+                    return user.save()
+                })
+                .then(user => {
+                    return res.status(200).json({
+                        success: true,
+                        form: userForm
+                    })
+                })
+                .catch(err => {
+                    return res.status(400).json({
+                        success: false,
+                        message: 'Could not update the form',
+                        cause: 'save-failed'
+                    })
+                })
+               
+        })
+    }
 }
