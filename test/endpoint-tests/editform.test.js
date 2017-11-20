@@ -52,30 +52,32 @@ describe('Edit a form', () => {
     // Before all tests we empty the database and save a new verified user with a form
     before((done) => { 
         User.remove({}, (err) => {
+            if (err) console.log(err);
+            console.log('before auth');
             return chai.request(server)
                 .post('/auth/signup')
                 .send(shouldSucceed)
-                .then(() => {
-                    return User.find({}).exec()
+                .then((res) => {
+                    return User.find({})
                 })
-                .then(user => {
-                    const verifiedUser = user[0];
+                .catch(err => console.log(err))
+                .then(users => {
+                    const verifiedUser = users[0];
                     verifiedUser.verified = true; // mock user verification
                     verifiedUser.forms.push(validForm)
                     form_id = verifiedUser.forms[0]._id.toString();
                     return verifiedUser.save()
                 })
                 .then((user) => {
-                    done();
+                    return done();
                 })
                 .catch(err => {
                     console.log('ERR in edit form setup!!', err)
-                    done();
+                    return done();
                 });
         });
     });
 
-    // tests
     describe('GET api/edit/form/:form_id', () => {
         it(`should get existing form data, by form_id`, () => {
             const agent = chai.request.agent(server);
@@ -101,12 +103,11 @@ describe('Edit a form', () => {
                 .then(({user, res}) => {
                     const form = user.forms[0];
                     form.title.should.equal(validForm.title);
-                    console.log(res.body.form);
                     res.body.form.topLevelElements[0].children[0].type.should.equal(form.topLevelElements[0].children[0].type)
                     return res.body.form.title.should.equal(validForm.title);
                 })
                 .catch(err => {
-                    console.trace('Err!', err);
+                    console.trace('Err -- ths should not be entered');
                 })
         });
 
@@ -121,12 +122,14 @@ describe('Edit a form', () => {
                 })
                 .catch(err => {
                     err.should.have.status(404);
+                    return null;
+                })
+                .then(() => {
                     return agent
-                        .get(`/api/edit/form/invalidid`)
+                    .get(`/api/edit/form/invalidid`)
                 })
                 .catch(err => {
-                    console.log(err);
-                    err.res.should.have.status(400);
+                    err.should.have.status(400);
                 })
         })
 
@@ -147,19 +150,23 @@ describe('Edit a form', () => {
                 .post('/auth/login')
                 .send(shouldSucceed)
                 .then(() => {
+                    const updatedForm = Object.assign({}, validForm, { title: 'Edited' });
                     return agent
                         .post(`/api/edit/form/${form_id}`)
-                        .send(Object.assign({}, validForm, { title: 'Edited' }))
+                        .send({ form: updatedForm })
                 })
                 .then(res => {
                     res.should.have.status(200);
                     res.body.success.should.be.true;
-                    return User.find({}).exec()
+                    return User.find({})
                 })
                 .then(users => {
-                    users[0].forms[0].should.equal(Object.assign({}, validForm, { title: 'Edited' }));
+                    users[0].forms[0].title.should.equal('Edited');
+                    return users[0].forms[0].topLevelElements[0].children[0].type.should.equal(validForm.topLevelElements[0].children[0].type);
                 })
-                .catch(err => console.trace(err))
+                .catch(err => {
+                    return err.should.be.undefined;
+                })
         });
 
         it(`should fail if form data is invalid`, () => {
@@ -174,34 +181,34 @@ describe('Edit a form', () => {
                 })
                 .then(res => res.should.be.undefined)
                 .catch(err => {
-                    err.should.have.status(500);
-                    err.req.body.should.have.property('invalidKey');
+                    err.should.have.status(400);
+                    err.response.res.body.should.have.property('cause');
                 })
 
         })
-    })
-
-    it(`should fail if form_id is invalid`, () => {
-        const agent = chai.request.agent(server);
-        return agent
+        
+        it(`should fail if form_id is invalid`, () => {
+            const agent = chai.request.agent(server);
+            return agent
             .post('/auth/login/')
             .send(shouldSucceed)
             .then(() => {
                 return agent
-                    .post(`/api/edit/form/asdf`)
-                    .send(validForm);
+                .post(`/api/edit/form/asdf`)
+                .send(validForm);
             })
-            .catch(err => err.should.have.status(500));
-    })
-
-    it(`should fail if not logged in`, () => {
-        chai.request(server)
+            .catch(err => err.should.have.status(400));
+        })
+        
+        it(`should fail if not logged in`, () => {
+            chai.request(server)
             .post(`/api/edit/form/${form_id}`)
             .send(validForm)
             .then(() => res.should.be.undefined)
             .catch(err => {
                 return err.should.have.status(400);
             });
+        })
     });
 
 });

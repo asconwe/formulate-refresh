@@ -32,33 +32,31 @@ module.exports = (app) => {
                         }
                     });
                 }
-
+                
                 return res.status(400).json({
                     success: false,
                     message: 'Could not process the form.'
                 });
             } 
-
             // Setup verification email
             const _id = user._id.toString();
             let base = 'http://localhost:8080'; 
             if (process.env.NODE_ENV === 'prod') {
                 base = 'http://www.formulate.fyi';
             }
-
+            
             let mailOptions = {
                 from: `"formulate" <formulatefyi@gmail.com>`, // Sender address
                 to: `"formulatefyi@gmail.com"`, //`${req.body.email}`, // list of receivers
                 subject: `Verifiy your formulate account!`, // Subject line
                 text: `Email address: ${req.body.email}, & URL: ${base}/auth/verify/${_id}`, // plain text body
                 html: `Email address: ${req.body.email}<br>
-                    URL: <a href="${base}/auth/verify/${_id}">Click here to verify your email address, and start building forms!</a>
-                    <br>============================<br>
-                    Automated delivery` // html body
+                URL: <a href="${base}/auth/verify/${_id}">Click here to verify your email address, and start building forms!</a>
+                <br>============================<br>
+                Automated delivery` // html body
             };
-
             // Send email, then in call back send response
-            sendEmail(mailOptions, (error, info) => {
+            return sendEmail(mailOptions, (error, info) => {
                 if (error) {
                     return res.status(500).json({
                         success: false,

@@ -14,12 +14,15 @@ const elementIsValid = ({ type, children, options }) => {
 
 const elementsAreValid = (form) => {
     const invalidElements = form.topLevelElements.filter(element => !elementIsValid(element))
-    console.error('here', invalidElements.length === 0);
     return invalidElements.length === 0;
 } 
 
 const formIsValid = (form) => {
-    return form.title.length > 0 && elementsAreValid(form);
+    try {
+        return form.title.length > 0 && elementsAreValid(form);
+    } catch (error) {
+        return false
+    }
 }
 
 module.exports = { formIsValid, elementsAreValid, elementIsValid };
