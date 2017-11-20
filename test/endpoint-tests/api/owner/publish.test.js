@@ -2,12 +2,12 @@
 process.env.NODE_ENV = 'test';
 
 let mongoose = require("mongoose");
-let User = require('../../models/User');
+let User = require('../../../../models/User');
 
 //Require the dev-dependencies
 let chai = require('chai');
 let chaiHttp = require('chai-http');
-let server = require('../../server');
+let server = require('../../../../server');
 let should = chai.should();
 
 // User data that should succeed in signup and signin
@@ -111,6 +111,19 @@ describe('Publish form', () => {
                     err.should.have.status(400);
                 })
         })
+        
+        it(`should fail if not logged in`, () => {
+            chai.request(server)
+                .post(`/api/publish/form/${form_id}`)
+                .send({ published: true })
+                .then(() => res.should.be.undefined)
+                .catch(err => {
+                    return err.should.have.status(400);
+                })
+                .catch(err => {
+                    return err.should.be.undefined;
+                });
+        });
     });
     
     describe(`/api/unpublish/form/:form_id POST`, () => {
@@ -154,5 +167,18 @@ describe('Publish form', () => {
                     err.should.have.status(400);
                 })
         })
+        
+        it(`should fail if not logged in`, () => {
+            chai.request(server)
+                .post(`/api/unpublish/form/${form_id}`)
+                .send({ published: true })
+                .then(() => res.should.be.undefined)
+                .catch(err => {
+                    return err.should.have.status(400);
+                })
+                .catch(err => {
+                    return err.should.be.undefined;
+                });
+        });
     });
 });

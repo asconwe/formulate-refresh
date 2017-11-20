@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const User = require('../models/User');
+const User = require('../../models/User');
 
 module.exports = (app) => {
     app.get(`/auth/verify/:id`, (req, res) => {

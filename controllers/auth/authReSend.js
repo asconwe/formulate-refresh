@@ -1,4 +1,4 @@
-const sendEmail = require('./helpers/sendEmail');
+const sendEmail = require('../helpers/sendEmail');
 
 module.exports = (app) => {
     app.get('/auth/sendemail', (req, res) => {

@@ -4,7 +4,7 @@ const LocalLoginStrategy = require('./passport/login');
 const validateLoginForm = require('./passport/validateLogin');
 
 // Model
-const User = require('../models/User');
+const User = require('../../models/User');
 
 const localLogin = 'local-login';
 

@@ -2,7 +2,7 @@
 const passport = require('passport');
 const localSignupStrategy = require('./passport/signup');
 const validateSignupForm = require('./passport/validateSignup');
-const sendEmail = require('./helpers/sendEmail');
+const sendEmail = require('../helpers/sendEmail');
 const localSignup = 'local-signup'
 
 passport.use(localSignup, localSignupStrategy);
