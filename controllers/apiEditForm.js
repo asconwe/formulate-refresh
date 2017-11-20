@@ -6,9 +6,10 @@ const { formIsValid } = require('./helpers/validateForm');
 const findFormAndIndex = (req) => {
     try {
         const _id = mongoose.Types.ObjectId(req.params.form_id);
+        const userForm = req.user.forms.id(_id);
         return { 
-            formIndex: req.user.forms.indexOf(_id),
-            userForm: req.user.forms.id(_id),
+            formIndex: req.user.forms.indexOf(userForm),
+            userForm,
             _id,
         };
     } catch (error) {
@@ -17,6 +18,7 @@ const findFormAndIndex = (req) => {
         }
     }
 }
+
 
 module.exports = (app) => {
     app.get('/api/edit/form/:form_id', (req, res) => {
