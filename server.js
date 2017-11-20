@@ -21,6 +21,7 @@ const authReSend = require('./controllers/authReSend');
 const apiUserData = require('./controllers/apiUserData');
 const apiNewForm = require('./controllers/apiNewForm');
 const apiEditForm = require('./controllers/apiEditForm');
+const apiPublishForm = require('./controllers/apiPublishForm');
 
 // Express Port/App Declaration
 const PORT = process.env.PORT || 8080;
@@ -78,6 +79,7 @@ authReSend(app);
 apiUserData(app);
 apiNewForm(app);
 apiEditForm(app);
+apiPublishForm(app);
 
 // Connection to PORT
 app.listen(PORT, function () {
