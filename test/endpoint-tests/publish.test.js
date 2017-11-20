@@ -46,7 +46,6 @@ describe('Publish form', () => {
     before((done) => { 
         User.remove({}, (err) => {
             if (err) console.log(err);
-            console.log('before auth');
             return chai.request(server)
                 .post('/auth/signup')
                 .send(shouldSucceed)
@@ -72,7 +71,7 @@ describe('Publish form', () => {
     });
 
     describe(`/api/publish/form/:form_id POST`, () => {
-        it('should set the forms status to published given a valid form_id', () => {
+        it(`should set the form's published status to true given a valid form_id`, () => {
             const agent = chai.request.agent(server);
             return agent
                 .post('/auth/login/')
@@ -94,11 +93,66 @@ describe('Publish form', () => {
                     err.should.be.undefined;
                 })
         });
-
-        it('should not allow editing of a published form', () => {
+        
+        it(`should fail given an invalid form_id`, () => {
             const agent = chai.request.agent(server);
             return agent
-            .post(`/api/edit/form/${form_id}`)
+                .post('/auth/login/')
+                .send(shouldSucceed)
+                .then(() => {
+                    return agent
+                        .post(`/api/publish/form/abcd`)
+                        .send({ published: true });
+                })
+                .then((res) => {
+                    res.should.have.status(400);
+                })
+                .catch(err => {
+                    err.should.have.status(400);
+                })
+        })
+    });
+    
+    describe(`/api/unpublish/form/:form_id POST`, () => {
+        it(`should set the form's published status to false given a valid form_id`, () => {
+            const agent = chai.request.agent(server);
+            return agent
+                .post('/auth/login/')
+                .send(shouldSucceed)
+                .then(() => {
+                    return agent
+                        .post(`/api/unpublish/form/${form_id}`)
+                        .send({ published: false });
+                })
+                .then((res) => {
+                    res.should.have.status(200)
+                    return User.findOne({})
+                })
+                .then((user) => {
+                    return user.forms[0].published.should.be.false;
+                })
+                .catch(err => {
+                    console.error(err);
+                    err.should.be.undefined;
+                })
+        });
+    
+        it(`should fail given an invalid form_id`, () => {
+            const agent = chai.request.agent(server);
+            return agent
+                .post('/auth/login/')
+                .send(shouldSucceed)
+                .then(() => {
+                    return agent
+                        .post(`/api/unpublish/form/abcd`)
+                        .send({ published: true });
+                })
+                .then((res) => {
+                    res.should.have.status(400);
+                })
+                .catch(err => {
+                    err.should.have.status(400);
+                })
         })
     });
 });
