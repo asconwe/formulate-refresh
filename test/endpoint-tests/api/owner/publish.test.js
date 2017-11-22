@@ -3,6 +3,7 @@ process.env.NODE_ENV = 'test';
 
 let mongoose = require("mongoose");
 let User = require('../../../../models/User');
+let PublishedForm = require('../../../../models/PublishedForm');
 
 //Require the dev-dependencies
 let chai = require('chai');
@@ -71,7 +72,8 @@ describe('Publish form', () => {
     });
 
     describe(`/api/publish/form/:form_id POST`, () => {
-        it(`should set the form's published status to true given a valid form_id`, () => {
+        it(`should set the form's published status to true given a valid form_id,
+            and add it to the published list`, () => {
             const agent = chai.request.agent(server);
             return agent
                 .post('/auth/login/')
@@ -86,7 +88,11 @@ describe('Publish form', () => {
                     return User.findOne({})
                 })
                 .then((user) => {
-                    return user.forms[0].published.should.be.true;
+                    user.forms[0].published.should.be.true;
+                    return PublishedForm.findOne(user.forms[0]._id);
+                })
+                .then(form => {
+                    return form.should.not.be.undefined;
                 })
                 .catch(err => {
                     console.error(err);
