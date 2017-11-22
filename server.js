@@ -11,17 +11,17 @@ const session = require('cookie-session');
 const requireHTTPS = require('./controllers/requireHTTPS');
 
 // Authentication Controllers
-const authSignup = require('./controllers/authSignup');
-const authLogin = require('./controllers/authLogin');
-const authLogout = require('./controllers/authLogout');
-const authVerification = require('./controllers/authVerification');
-const authReSend = require('./controllers/authReSend');
+const authSignup = require('./controllers/auth/authSignup');
+const authLogin = require('./controllers/auth/authLogin');
+const authLogout = require('./controllers/auth/authLogout');
+const authVerification = require('./controllers/auth/authVerification');
+const authReSend = require('./controllers/auth/authReSend');
 
 // Data Controllers
-const apiUserData = require('./controllers/apiUserData');
-const apiNewForm = require('./controllers/apiNewForm');
-const apiEditForm = require('./controllers/apiEditForm');
-const { publish, unpublish } = require('./controllers/apiPublishForm');
+const apiUserData = require('./controllers/api/owner/userData');
+const apiNewForm = require('./controllers/api/owner/newForm');
+const apiEditForm = require('./controllers/api/owner/editForm');
+const { publish, unpublish } = require('./controllers/api/owner/publishForm');
 
 // Express Port/App Declaration
 const PORT = process.env.PORT || 8080;

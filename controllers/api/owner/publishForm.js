@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const User = require('../models/User');
+const User = require('../../../models/User');
 
-const { formIsValid } = require('./helpers/validateForm');
+const { formIsValid } = require('../../helpers/validateForm');
 
 const findFormAndIndex = (req) => {
     try {

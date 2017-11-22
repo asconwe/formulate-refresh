@@ -1,6 +1,6 @@
-const User = require('../models/User')
+const User = require('../../../models/User')
 
-const { formIsValid } = require('./helpers/validateForm.js');
+const { formIsValid } = require('../../helpers/validateForm.js');
 
 module.exports = (app) => {
     app.post('/api/new/form', (req, res) => {
