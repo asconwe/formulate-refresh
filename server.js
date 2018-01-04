@@ -33,7 +33,6 @@ if(process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined')); //'combined' outputs the Apache style LOGs
 }
 
-// app.use(requireHTTPS);
 app.use(express.static(__dirname + "/public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
